@@ -13,13 +13,10 @@ export class LostPetsService {
     return this.http.get<ApiResponse<LostPet[]>>(this.url).pipe(map(unwrap));
   }
 
-  create(pet: CreateLostPet) {
-    return this.http.post<ApiResponse<LostPet>>(this.url, pet).pipe(map(unwrap));
-  }
-
-  uploadImage(petId: number, file: File) {
+  create(pet: CreateLostPet, image: File) {
     const body = new FormData();
-    body.append('image', file);
-    return this.http.post<boolean>(`${this.url}/${petId}/image`, body);
+    Object.entries(pet).forEach(([key, value]) => body.append(key, String(value)));
+    body.append('image', image);
+    return this.http.post<ApiResponse<LostPet>>(this.url, body).pipe(map(unwrap));
   }
 }

@@ -76,6 +76,13 @@ export class PetMap implements OnDestroy {
 
   private popup(pet: LostPet) {
     const root = document.createElement('div');
+    if (pet.image) {
+      const image = document.createElement('img');
+      image.className = 'pet-popup-image';
+      image.src = pet.image;
+      image.alt = pet.name;
+      root.append(image);
+    }
     const name = document.createElement('div');
     name.className = 'pet-popup-name';
     name.textContent = pet.name;

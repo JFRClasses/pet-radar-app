@@ -214,6 +214,15 @@ body {
   border-bottom-color: var(--color-card);
 }
 
+.pet-popup-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
 .pet-popup-name {
   font-family: var(--font-display);
   font-weight: 700;

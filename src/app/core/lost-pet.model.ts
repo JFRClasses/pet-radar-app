@@ -13,6 +13,7 @@ export interface LostPet {
   age: number;
   color: string;
   ownerName: string;
+  image?: string | null;
 }
 
 export interface CreateLostPet {
