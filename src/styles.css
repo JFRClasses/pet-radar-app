@@ -1,3 +1,256 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --color-paper: #f2efe6;
+  --color-card: #faf8f2;
+  --color-ink: #1b1a16;
+  --color-ink-soft: #3a3832;
+  --color-muted: #75705f;
+  --color-line: #ddd7c7;
+  --color-signal: #ff5a1f;
+  --color-signal-deep: #d9430c;
+  --color-moss: #3f5b3a;
+
+  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-signal);
+  color: var(--color-card);
+}
+
+.field {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  border-radius: 6px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  transition: border-color 120ms, box-shadow 120ms;
+}
+
+.field::placeholder {
+  color: #a8a291;
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 3px rgb(27 26 22 / 0.08);
+}
+
+.field.ng-invalid.ng-touched {
+  border-color: var(--color-signal-deep);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 120ms, transform 120ms, color 120ms;
+  cursor: pointer;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ink {
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+
+.btn-ink:hover:not(:disabled) {
+  background: var(--color-ink-soft);
+}
+
+.btn-signal {
+  background: var(--color-signal);
+  color: var(--color-ink);
+}
+
+.btn-signal:hover:not(:disabled) {
+  background: var(--color-signal-deep);
+  color: var(--color-card);
+}
+
+.btn-ghost {
+  color: var(--color-ink);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: rgb(27 26 22 / 0.06);
+}
+
+.mapboxgl-map {
+  font-family: var(--font-sans);
+  background: #e8e4d8;
+}
+
+.mapboxgl-ctrl-group {
+  border: 1px solid var(--color-line);
+  border-radius: 6px !important;
+  overflow: hidden;
+  box-shadow: none !important;
+  background: var(--color-card) !important;
+}
+
+.mapboxgl-ctrl-group button + button {
+  border-top-color: var(--color-line) !important;
+}
+
+.pet-pin {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.pet-pin .pin {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-signal);
+  border: 3px solid var(--color-card);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 160ms;
+}
+
+.pet-pin .pin::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-signal);
+  opacity: 0;
+}
+
+.pet-pin.is-active .pin {
+  transform: scale(1.35);
+  background: var(--color-ink);
+}
+
+.pet-pin.is-active .pin::after {
+  border-color: var(--color-ink);
+  animation: ping 1.6s ease-out infinite;
+}
+
+.pick-pin {
+  padding-bottom: 4px;
+  cursor: grab;
+}
+
+.pick-pin .pin {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px 999px 999px 0;
+  transform: rotate(-45deg);
+  background: var(--color-ink);
+  border: 3px solid var(--color-card);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.3);
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.mapboxgl-popup-content {
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--color-card);
+  box-shadow: 0 6px 24px rgb(27 26 22 / 0.18);
+}
+
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: var(--color-card);
+}
+
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: var(--color-card);
+}
+
+.pet-popup-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.pet-popup-meta {
+  margin-top: 2px;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+.pet-popup-phone {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-signal-deep) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

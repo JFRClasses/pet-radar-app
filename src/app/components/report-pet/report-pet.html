@@ -1,0 +1,169 @@
+<div class="fixed inset-0 z-[1000] flex justify-end">
+  <button type="button" class="absolute inset-0 bg-ink/40 cursor-default" aria-label="Cerrar" (click)="close()"></button>
+
+  <aside class="relative flex h-full w-full max-w-lg flex-col bg-paper shadow-2xl animate-[slide-in_220ms_ease-out]" role="dialog" aria-modal="true" aria-labelledby="report-title">
+    <header class="flex items-start justify-between border-b border-line px-6 pt-6 pb-5">
+      <div>
+        <div class="flex items-center gap-3 font-mono text-[0.7rem] uppercase tracking-wider">
+          <span [class]="step() === 'details' ? 'text-ink' : 'text-muted'">01 Datos</span>
+          <span class="h-px w-6 bg-line"></span>
+          <span [class]="step() === 'photo' ? 'text-ink' : 'text-muted'">02 Foto</span>
+        </div>
+        <h2 id="report-title" class="mt-3 font-display text-2xl font-bold tracking-tight">
+          @switch (step()) {
+            @case ('details') { Reportar mascota perdida }
+            @case ('photo') { Agrega una foto de {{ pet()?.name }} }
+            @case ('done') { Reporte publicado }
+          }
+        </h2>
+      </div>
+      <button type="button" class="btn btn-ghost -mr-2 p-2" (click)="close()" aria-label="Cerrar">
+        <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+      </button>
+    </header>
+
+    @switch (step()) {
+      @case ('details') {
+        <form class="flex min-h-0 flex-1 flex-col" [formGroup]="form" (ngSubmit)="submitDetails()" novalidate>
+          <div class="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+            <fieldset>
+              <legend class="label">Tipo</legend>
+              <div class="grid grid-cols-3 gap-1 rounded-md border border-line bg-card p-1">
+                @for (type of types; track type) {
+                  <button
+                    type="button"
+                    class="rounded px-3 py-2 text-sm font-medium transition-colors"
+                    [class]="form.controls.type.value === type ? 'bg-ink text-card' : 'text-ink-soft hover:bg-ink/5'"
+                    (click)="form.controls.type.setValue(type)">
+                    {{ type }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="col-span-2">
+                <label class="label" for="pet-name">Nombre</label>
+                <input id="pet-name" class="field" formControlName="name" placeholder="Firulais" />
+              </div>
+              <div>
+                <label class="label" for="pet-race">Raza</label>
+                <input id="pet-race" class="field" formControlName="race" placeholder="Mestizo" />
+              </div>
+              <div>
+                <label class="label" for="pet-color">Color</label>
+                <input id="pet-color" class="field" formControlName="color" placeholder="Café con blanco" />
+              </div>
+              <div>
+                <label class="label" for="pet-age">Edad (años)</label>
+                <input id="pet-age" class="field" type="number" min="0" max="40" formControlName="age" />
+              </div>
+            </div>
+
+            <div>
+              <span class="label">Última ubicación vista</span>
+              <app-location-picker [(value)]="location" />
+              @if (locationTouched() && !location()) {
+                <p class="mt-1 text-xs text-signal-deep">Marca en el mapa dónde se perdió.</p>
+              }
+            </div>
+
+            <div class="border-t border-line pt-6">
+              <p class="label mb-4">Contacto</p>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="label" for="owner-name">Tu nombre</label>
+                  <input id="owner-name" class="field" formControlName="ownerName" autocomplete="name" />
+                </div>
+                <div>
+                  <label class="label" for="owner-phone">Teléfono</label>
+                  <input id="owner-phone" class="field" type="tel" formControlName="phone" autocomplete="tel" placeholder="33 1234 5678" />
+                </div>
+              </div>
+            </div>
+
+            @if (form.invalid && form.touched) {
+              <p class="text-sm text-muted">Completa los campos marcados para continuar.</p>
+            }
+          </div>
+
+          <footer class="border-t border-line bg-card px-6 py-4">
+            @if (error(); as message) {
+              <p class="mb-3 text-sm text-signal-deep" role="alert">{{ message }}</p>
+            }
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" class="btn btn-ghost" (click)="close()">Cancelar</button>
+              <button type="submit" class="btn btn-ink" [disabled]="saving()">
+                @if (saving()) {
+                  <span class="size-4 rounded-full border-2 border-card/30 border-t-card animate-spin"></span>
+                  Guardando
+                } @else {
+                  Continuar
+                }
+              </button>
+            </div>
+          </footer>
+        </form>
+      }
+
+      @case ('photo') {
+        <div class="flex min-h-0 flex-1 flex-col">
+          <div class="flex-1 overflow-y-auto px-6 py-6">
+            <p class="text-muted">El reporte ya está en el mapa. Una foto clara de frente ayuda mucho a que la reconozcan.</p>
+
+            @if (preview(); as url) {
+              <figure class="mt-6 overflow-hidden rounded-md border border-line bg-card">
+                <img [src]="url" alt="Vista previa" class="aspect-[4/3] w-full object-cover" />
+                <figcaption class="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                  <span class="truncate">{{ file()?.name }}</span>
+                  <span class="shrink-0 font-mono text-xs text-muted">{{ formatSize(file()?.size ?? 0) }}</span>
+                  <button type="button" class="shrink-0 text-sm font-medium underline underline-offset-2" (click)="clearFile()">Cambiar</button>
+                </figcaption>
+              </figure>
+            } @else {
+              <label
+                class="mt-6 flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-md border-[1.5px] border-dashed text-center transition-colors"
+                [class]="dragging() ? 'border-signal bg-signal/5' : 'border-line bg-card hover:border-ink/40'"
+                (dragover)="onDragOver($event)"
+                (dragleave)="dragging.set(false)"
+                (drop)="onDrop($event)">
+                <input type="file" accept="image/*" class="sr-only" (change)="onFileInput($event)" />
+                <svg class="size-8 text-muted" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="4" y="7" width="24" height="18" rx="2" stroke="currentColor" stroke-width="1.5" /><circle cx="12" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5" /><path d="m4 22 7-6 5 4 4-3 8 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+                <span class="mt-3 font-medium">Arrastra una imagen o elige un archivo</span>
+                <span class="mt-1 font-mono text-xs text-muted">JPG, PNG o WebP · máx. 5 MB</span>
+              </label>
+            }
+          </div>
+
+          <footer class="border-t border-line bg-card px-6 py-4">
+            @if (error(); as message) {
+              <p class="mb-3 text-sm text-signal-deep" role="alert">{{ message }}</p>
+            }
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" class="btn btn-ghost" (click)="skipPhoto()" [disabled]="saving()">Omitir</button>
+              <button type="button" class="btn btn-ink" (click)="uploadPhoto()" [disabled]="!file() || saving()">
+                @if (saving()) {
+                  <span class="size-4 rounded-full border-2 border-card/30 border-t-card animate-spin"></span>
+                  Subiendo
+                } @else {
+                  Subir foto
+                }
+              </button>
+            </div>
+          </footer>
+        </div>
+      }
+
+      @case ('done') {
+        <div class="flex flex-1 flex-col justify-center px-6">
+          <span class="grid size-12 place-items-center rounded-full bg-moss text-card">
+            <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+          <p class="mt-6 font-display text-3xl font-bold tracking-tight">{{ pet()?.name }} ya aparece en el mapa.</p>
+          <p class="mt-3 max-w-sm text-muted">Los vecinos con alertas activas cerca de la zona recibirán un aviso. Mucha suerte.</p>
+          <button type="button" class="btn btn-ink mt-8 self-start" (click)="close()">Volver al mapa</button>
+        </div>
+      }
+    }
+  </aside>
+</div>

@@ -1,0 +1,24 @@
+<div class="relative overflow-hidden rounded-md border border-line">
+  <div #container class="h-56 w-full"></div>
+  @if (!value()) {
+    <div class="pointer-events-none absolute inset-x-0 top-3 flex justify-center z-10">
+      <span class="rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-card shadow">Toca el mapa donde se vio por última vez</span>
+    </div>
+  }
+</div>
+<div class="mt-2 flex items-center justify-between gap-3">
+  <span class="font-mono text-[0.72rem] text-muted">
+    @if (value(); as point) {
+      {{ point.lat.toFixed(5) }}, {{ point.lon.toFixed(5) }}
+    } @else {
+      Sin ubicación
+    }
+  </span>
+  <button type="button" class="btn btn-ghost px-2.5 py-1.5 text-xs" (click)="useMyLocation()" [disabled]="locating()">
+    <svg class="size-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5" /><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+    {{ locating() ? 'Buscando…' : 'Usar mi ubicación' }}
+  </button>
+</div>
+@if (geoError(); as message) {
+  <p class="mt-1 text-xs text-signal-deep">{{ message }}</p>
+}

@@ -22,10 +22,19 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "mapbox-gl-csp-worker.js",
+                "input": "node_modules/mapbox-gl/dist",
+                "output": "/"
               }
             ],
             "styles": [
+              "node_modules/mapbox-gl/dist/mapbox-gl.css",
               "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "mapbox-gl"
             ]
           },
           "configurations": {
@@ -62,7 +71,10 @@
               "buildTarget": "pet-radar-app:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"

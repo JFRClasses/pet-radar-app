@@ -1,0 +1,108 @@
+<div class="flex h-dvh flex-col">
+  <header class="flex h-14 shrink-0 items-center justify-between border-b border-line bg-card px-4 sm:px-5">
+    <div class="flex items-center gap-2.5">
+      <span class="grid size-7 place-items-center rounded-full border border-ink/30">
+        <span class="size-2 rounded-full bg-signal"></span>
+      </span>
+      <span class="font-display text-lg font-bold tracking-tight">PetRadar</span>
+    </div>
+    <div class="flex items-center gap-1 sm:gap-2">
+      <button type="button" class="btn btn-signal px-3 py-2 sm:px-4" (click)="reporting.set(true)">
+        <svg class="size-4" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
+        <span class="hidden sm:inline">Reportar mascota</span>
+        <span class="sm:hidden">Reportar</span>
+      </button>
+      <button type="button" class="btn btn-ghost px-3 py-2 text-muted" (click)="logout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="flex min-h-0 flex-1 flex-col-reverse lg:flex-row">
+    <aside class="flex min-h-0 flex-1 flex-col border-line bg-paper lg:w-[380px] lg:flex-none lg:border-r">
+      <div class="border-b border-line px-5 pt-5 pb-4">
+        <div class="flex items-baseline justify-between">
+          <h1 class="font-display text-xl font-bold tracking-tight">Mascotas perdidas</h1>
+          <span class="font-mono text-xs text-muted">{{ filtered().length }} / {{ pets().length }}</span>
+        </div>
+        <div class="relative mt-4">
+          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5" /><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+          <input
+            class="field pl-9 py-2 text-sm"
+            type="search"
+            placeholder="Buscar por nombre, raza, color…"
+            [value]="query()"
+            (input)="query.set($any($event.target).value)" />
+        </div>
+      </div>
+
+      <div class="min-h-0 flex-1 overflow-y-auto">
+        @if (loading()) {
+          <ul class="divide-y divide-line">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <li class="px-5 py-4">
+                <div class="h-3 w-12 rounded bg-line/70 animate-pulse"></div>
+                <div class="mt-3 h-4 w-40 rounded bg-line animate-pulse"></div>
+                <div class="mt-2 h-3 w-56 rounded bg-line/70 animate-pulse"></div>
+              </li>
+            }
+          </ul>
+        } @else if (error(); as message) {
+          <div class="px-5 py-10">
+            <p class="font-medium">{{ message }}</p>
+            <p class="mt-1 text-sm text-muted">Revisa tu conexión o que la API esté encendida.</p>
+            <button type="button" class="btn btn-ink mt-4 py-2 text-sm" (click)="load()">Reintentar</button>
+          </div>
+        } @else {
+          <ul class="divide-y divide-line">
+            @for (pet of filtered(); track pet.id) {
+              <li [id]="'pet-' + pet.id">
+                <button
+                  type="button"
+                  class="group relative block w-full px-5 py-4 text-left transition-colors hover:bg-card"
+                  [class.bg-card]="selectedId() === pet.id"
+                  (click)="select(pet.id)">
+                  @if (selectedId() === pet.id) {
+                    <span class="absolute inset-y-0 left-0 w-[3px] bg-signal"></span>
+                  }
+                  <div class="flex items-center justify-between font-mono text-[0.7rem] uppercase tracking-wider text-muted">
+                    <span>{{ code(pet.id) }}</span>
+                    <span class="rounded-sm border border-line px-1.5 py-0.5 text-ink-soft">{{ pet.type }}</span>
+                  </div>
+                  <p class="mt-1.5 font-display text-lg font-bold leading-tight tracking-tight">{{ pet.name }}</p>
+                  <p class="mt-0.5 text-sm text-ink-soft">{{ pet.race }} · {{ pet.color }} · {{ age(pet.age) }}</p>
+                  <div class="mt-3 flex items-center justify-between text-sm">
+                    <span class="text-muted">{{ pet.ownerName }}</span>
+                    <a class="font-mono text-xs text-signal-deep hover:underline" [href]="'tel:' + pet.phone" (click)="$event.stopPropagation()">{{ pet.phone }}</a>
+                  </div>
+                </button>
+              </li>
+            } @empty {
+              <li class="px-5 py-12 text-center">
+                @if (query()) {
+                  <p class="font-medium">Sin resultados para “{{ query() }}”</p>
+                  <button type="button" class="mt-2 text-sm text-muted underline underline-offset-2" (click)="query.set('')">Limpiar búsqueda</button>
+                } @else {
+                  <p class="font-medium">Aún no hay reportes</p>
+                  <p class="mt-1 text-sm text-muted">Cuando alguien reporte una mascota aparecerá aquí y en el mapa.</p>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </aside>
+
+    <section class="relative h-[45vh] shrink-0 lg:h-auto lg:flex-1">
+      <app-pet-map class="absolute inset-0 z-0" [pets]="filtered()" [selectedId]="selectedId()" (selectPet)="select($event)" />
+      @if (!loading() && pets().length > 0) {
+        <div class="pointer-events-none absolute left-4 top-4 z-10 rounded-md border border-line bg-card/95 px-3 py-2 shadow-sm">
+          <p class="font-mono text-[0.68rem] uppercase tracking-wider text-muted">Reportes activos</p>
+          <p class="font-display text-2xl font-bold leading-none">{{ pets().length }}</p>
+        </div>
+      }
+    </section>
+  </div>
+</div>
+
+@if (reporting()) {
+  <app-report-pet (closed)="reporting.set(false)" (created)="onCreated($event)" />
+}
